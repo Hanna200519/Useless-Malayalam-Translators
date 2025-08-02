@@ -38,7 +38,9 @@ For Software:
 For Software:
 
 # Screenshots (Add at least 3)
-![Screenshot1]"C:\Users\Hanna\OneDrive\Pictures\Screenshots\Screenshot 2025-08-02 081125.png"
+Screenshot1"C:\Users\Hanna\OneDrive\Pictures\Screenshots\Screenshot 2025-08-02 081125.png"
+Screenshot2"C:\Users\Hanna\OneDrive\Pictures\Screenshots\Screenshot 2025-08-02 083224.png"
+Screenshot3"C:\Users\Hanna\OneDrive\Pictures\Screenshots\Screenshot 2025-08-02 083303.png"
 
 
 
