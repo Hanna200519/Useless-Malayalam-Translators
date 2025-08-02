@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title> Malayalam Translator</title>
+  <style>
+    body {
+      font-family: 'Times New Roman', serif;
+      background-image: url('https://i0.wp.com/www.michigandaily.com/wp-content/uploads/2021/03/0-1.jpg?fit=780%2C624&ssl=1');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      backdrop-filter: blur(4px);
+      padding: 2rem;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .overlay {
+      background-color: rgba(255, 255, 255, 0.8);
+      padding: 2rem;
+      border-radius: 16px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+    h1 {
+      color: #3b0a64;
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      text-shadow: 1px 1px #fff;
+    }
+    textarea {
+      width: 90%;
+      max-width: 400px;
+      height: 100px;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      resize: none;
+      background: #ffffff;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 1rem 5px 0;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #8e44ad;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #732d91;
+    }
+    .result {
+      margin-top: 2rem;
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.6s ease-in-out;
+      width: 90%;
+      max-width: 500px;
+    }
+    .result p {
+      margin: 0.5rem 0;
+      font-size: 1.1rem;
+    }
+    .loading {
+      font-style: italic;
+      color: #5c5c5c;
+      margin-top: 1rem;
+      font-size: 1.1rem;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <h1>Malayalam Translator</h1>
+    <textarea id="inputText" placeholder="Enter any English sentence..."></textarea><br>
+    <button onclick="handleTranslate()">Translate</button>
+    <button onclick="handleReset()">Reset</button>
+    <div id="output"></div>
+  </div>
+
+  <script>
+    const funnyMalayalamMessages = [
+      { malayalam: "ഇനി നീ മിണ്ടരുത്... ഇന്നത്തെ കൊട്ട കഴിഞ്ഞു", english: "Ini nee mindaruthu... innathe kott kazhinju" },
+      { malayalam: "ദാസാ, ഓരോന്നിനും അതിന്റേതായ സമയം ഉണ്ടെ മോനേ", english: "Dasa, oronninum athintethaya samayam unda mone" },
+      { malayalam: "ക്രീം ബിസ്ക്കറ്റിൽ ക്രീം ഉണ്ടെങ്കിൽ കരുതി ടൈഗർ ബിസ്ക്കറ്റിൽ ടൈഗർ ഉണ്ടാകണം എന്നില്ല. പണി പാളും മോനെ..", english: "Cream biscuit-il cream undenkil karuthi Tiger biscuit-il tiger undakanam ennilla. Pani palum mone..." },
+      { malayalam: "കലങ്ങിയില്ല......", english: "Kalangiyilla..." },
+      { malayalam: "സന്തോഷായില്ലേ അരുണേട്ടാ..!", english: "Santhoshayille Arunetta..!" },
+      { malayalam: "ഞാനൊരു വികാരജീവിയാണ്", english: "Njanoru vikara jeeviyananu" },
+      { malayalam: "ഇതാരാ യുദ്ധഭൂമിയില്‍ ഒരു പുതിയ ഒരു ഭടൻ", english: "Ithara yuddhabhoomiyil oru puthiya oru bhatan?" },
+      { malayalam: "മോനേ, ശക്കീല വന്നാ?", english: "Mone, Shakeela vanna?" },
+      { malayalam: "ടീച്ചർ: 'കൗതുകം ലേശം കൂടുതലാ മാപ്പാക്കണം'", english: "Teacher: 'Kauthukam lesham koothalaa maappakkanam'" },
+      { malayalam: "ഭയപ്പെടവേണ്ട ചെമ്ബകം പക്കത്തിൽ വാ...", english: "Bhayappedenda Chembakam pakkathil va..." },
+      { malayalam: "കൊള്ളാം പൊളി സാനം", english: "Kollam poli sanam" }
+    ];
+
+    const loadingMessages = [
+      "Analyzing English grammar patterns...",
+      "Consulting Malayalam dictionary database...",
+      "Processing linguistic structures...",
+      "Applying cultural context filters...",
+      "Optimizing translation accuracy...",
+      "Finalizing Malayalam syntax...",
+      "ERROR: Redirecting to comedy database...",
+      "WARNING: Humor module activated..."
+    ];
+
+    let translationCount = 0;
+
+    function handleTranslate() {
+      const inputText = document.getElementById("inputText").value.trim();
+      const output = document.getElementById("output");
+
+      if (!inputText) return;
+      output.innerHTML = '<p class="loading">Loading...</p>';
+
+      translationCount++;
+
+      let i = 0;
+      const loadingInterval = setInterval(() => {
+        if (i >= loadingMessages.length) {
+          clearInterval(loadingInterval);
+
+          const joke = funnyMalayalamMessages[Math.floor(Math.random() * funnyMalayalamMessages.length)];
+
+          output.innerHTML = `
+            <div class="result">
+              <p><strong>Malayalam:</strong> ${joke.malayalam}</p>
+              <p><strong>Pronunciation:</strong> ${joke.english}</p>
+              <button onclick="navigator.clipboard.writeText('${joke.malayalam}')">📋 Copy</button>
+              <button onclick="alert('🔊 Pronunciation: ${joke.english}')">🔊 Speak</button>
+              <p style="margin-top:10px; color: #555;">${getEncouragementMessage()}</p>
+            </div>
+          `;
+        } else {
+          output.innerHTML = `<p class="loading">${loadingMessages[i++]}</p>`;
+        }
+      }, 500);
+    }
+
+    function handleReset() {
+      document.getElementById("inputText").value = "";
+      document.getElementById("output").innerHTML = "";
+    }
+
+    function getEncouragementMessage() {
+      if (translationCount >= 5) return "🎭 You're really committed to this comedy show!";
+      if (translationCount >= 3) return "😄 Still expecting real translations?";
+      if (translationCount >= 1) return "🤔 Something seems off about these translations...";
+      return "";
+    }
+  </script>
+</body>
+</html>
